@@ -1,32 +1,68 @@
 const express = require("express");
 const path = require("path");
+const fetch = require("node-fetch");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middleware para JSON
-app.use(express.json());
+// 🛡️ Clave secreta para proteger el endpoint del ESP32
+const SECRET = process.env.SECRET || "MI_SECRETO_123";
+
+// Datos del ESP32 almacenados en servidor
+let estado = {
+  conexionMCU: false,
+  conexionPozo: false,
+  nivelTanque: 0,
+  nivelPozo: 0,
+  modo: "auto",
+  bomba: false,
+  ultimaActualizacion: 0
+};
 
 // Servir archivos estáticos
 app.use(express.static(path.join(__dirname, "public")));
+app.use(express.json());
 
-// Servir index.html
-app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "index.html"));
-});
-
-// ENDPOINT FAKE → luego lo conectaremos con LoRa/ESP32
+// 🟦 1. Endpoint PWA → Render → leer estado
 app.get("/status", (req, res) => {
-  res.json({ status: "desconocido" });
+  res.json(estado);
 });
 
-app.post("/command", (req, res) => {
-  console.log("Comando recibido:", req.body.action);
+// 🟧 2. Endpoint PWA → Render → mandar comando al ESP32
+app.post("/command", async (req, res) => {
+  const comando = req.body;
+
+  try {
+    const r = await fetch("http://TU_IP_DEL_ESP32/command", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(comando)
+    });
+
+    res.json({ ok: true });
+  } catch (e) {
+    res.json({ ok: false, error: "ESP32 no responde" });
+  }
+});
+
+// 🟥 3. Endpoint ESP32 → Render (envía datos)
+app.post("/esp/update", (req, res) => {
+  const key = req.headers["x-secret"];
+
+  if (key !== SECRET) {
+    return res.status(403).json({ error: "No autorizado" });
+  }
+
+  estado = { ...estado, ...req.body, ultimaActualizacion: Date.now() };
+  estado.conexionMCU = true;
+
   res.json({ ok: true });
 });
 
-// Iniciar servidor
-app.listen(PORT, () => {
-  console.log(`Servidor corriendo en puerto ${PORT}`);
+// 🟩 4. Servir index
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "public/index.html"));
 });
 
+// ⭐ Iniciar
+app.listen(PORT, () => console.log("Servidor listo en", PORT));
