@@ -1,15 +1,16 @@
 {
-  "name": "bomba-backend",
+  "name": "backend-bomba",
   "version": "1.0.0",
-  "main": "index.js",
+  "description": "API para control de bomba - para tesis",
+  "main": "server.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": "18.x"
   },
   "dependencies": {
-    "express": "^4.18.2",
-    "body-parser": "^1.20.2",
-    "node-telegram-bot-api": "^0.61.0",
-    "axios": "^1.6.0",
-    "cors": "^2.8.5"
+    "cors": "^2.8.5",
+    "express": "^4.18.2"
   }
 }
