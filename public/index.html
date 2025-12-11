@@ -1,93 +1,119 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Control de Bomba de Agua</title>
 
+  <!-- Manifest para PWA -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0277bd">
 
+  <!-- Estilos -->
+  <link rel="stylesheet" href="styles.css">
 
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#1565c0">
+  <!-- Iconos -->
+  <link rel="apple-touch-icon" href="icon-512.png">
 
-<!-- Required for iOS installation -->
-<link rel="apple-touch-icon" href="icon-192.png">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
-
-
-
-
-    
-    <meta charset="UTF-8">
-    <title>Control de Bomba</title>
-
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="manifest" href="manifest.json">
-    <link rel="stylesheet" href="styles.css">
+  <!-- Fuente moderna -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
 </head>
 <body>
 
-<h1>Sistema de Control de Bomba</h1>
+  <header>
+    <h1>💧 Panel de Control – Bomba</h1>
+  </header>
 
-<!-- ESTADOS -->
-<div class="card">
+  <main>
 
-    <div class="row">
-        <span class="label">Conexión:</span>
-        <span id="estadoConexion" class="status-pill fail">Desconocido</span>
-    </div>
+    <!-- ESTADOS -->
+    <section class="card">
+      <h2>📡 Estado del Sistema</h2>
 
-    <div class="row">
-        <span class="label">Pozo:</span>
-        <span id="estadoPozo" class="status-pill fail">Desconectado</span>
-    </div>
+      <div class="row">
+        <span class="label">Conexión Microcontrolador:</span>
+        <span id="statusCon" class="status-dot red">Fallida</span>
+      </div>
 
-    <div class="label">Nivel del Tanque:</div>
-    <div class="progress-container">
-        <div id="nivelTanque" class="progress-bar"></div>
-    </div>
+      <div class="row">
+        <span class="label">Conexión Pozo:</span>
+        <span id="statusPozo" class="status-dot red">Desconectado</span>
+      </div>
 
-    <div class="label" style="margin-top:10px;">Nivel del Pozo:</div>
-    <div class="progress-container">
-        <div id="nivelPozo" class="progress-bar"></div>
-    </div>
+      <button id="btnActualizar" class="small-button">Actualizar</button>
+    </section>
 
-    <div class="row" style="margin-top:10px;">
+    <!-- NIVELES -->
+    <section class="card">
+      <h2>📊 Niveles de Agua</h2>
+
+      <p>Tanque:</p>
+      <div class="bar-container">
+        <div id="nivelTanque" class="bar-fill" style="width: 0%">0%</div>
+      </div>
+
+      <p>Pozo:</p>
+      <div class="bar-container">
+        <div id="nivelPozo" class="bar-fill" style="width: 0%">0%</div>
+      </div>
+    </section>
+
+    <!-- ESTADOS -->
+    <section class="card">
+      <h2>⚙️ Control del Sistema</h2>
+
+      <div class="row">
         <span class="label">Bomba:</span>
-        <span id="estadoBomba" class="status-pill fail">Apagada</span>
-    </div>
+        <span id="estadoBomba" class="status-gray">Apagada</span>
+      </div>
 
-    <div class="row" style="margin-top:10px;">
-        <span class="label">Modo:</span>
-        <span id="modoTrabajo" class="status-pill ok">Automático</span>
-    </div>
+      <div class="row">
+        <span class="label">Modo de Trabajo:</span>
+        <span id="modoTrabajo" class="status-gray">Automático</span>
+      </div>
+    </section>
 
-    <button class="btn-small" onclick="obtenerEstado()">Actualizar</button>
-</div>
+    <!-- CONTROLES -->
+    <section class="card">
+      <h2>🔧 Controles Manuales</h2>
 
-
-<!-- CONTROLES -->
-<div class="card">
-
-    <div class="switch-container">
-        <span>Modo Manual</span>
+      <div class="switch-row">
+        <label>Activar Modo Manual</label>
         <label class="switch">
-            <input type="checkbox" id="switchManual" onchange="setModoManual(this.checked)">
-            <span class="slider"></span>
+          <input type="checkbox" id="swtManual">
+          <span class="slider"></span>
         </label>
-    </div>
-    <div class="switch-desc">Permite controlar la bomba manualmente</div>
+      </div>
 
-    <div class="switch-container">
-        <span>Encender Bomba</span>
+      <small class="desc">Activa el modo manual para poder encender o apagar la bomba manualmente.</small>
+
+      <div class="switch-row mt">
+        <label>Encender Bomba</label>
         <label class="switch">
-            <input type="checkbox" id="switchBomba" onchange="setBomba(this.checked)" disabled>
-            <span class="slider"></span>
+          <input type="checkbox" id="swtBomba" disabled>
+          <span class="slider"></span>
         </label>
-    </div>
-    <div class="switch-desc">Activa o apaga la bomba cuando el modo manual está activado</div>
+      </div>
 
-</div>
+      <small class="desc">Enciende la bomba. Disponible solo en modo manual.</small>
+    </section>
 
-<script src="script.js"></script>
+  </main>
+
+  <footer>
+    <p>PWA – Control de Bomba © 2025</p>
+  </footer>
+
+  <script src="app.js"></script>
+
+  <!-- Registrar Service Worker PWA -->
+  <script>
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("sw.js")
+        .then(() => console.log("Service Worker registrado"))
+        .catch(err => console.log("Error SW", err));
+    }
+  </script>
 
 </body>
 </html>
