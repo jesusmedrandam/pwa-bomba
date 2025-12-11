@@ -6,143 +6,26 @@
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="manifest" href="manifest.json">
-
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 15px;
-            background: #eef2f3;
-            color: #333;
-        }
-
-        h1 {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .card {
-            background: white;
-            padding: 15px;
-            border-radius: 12px;
-            margin-bottom: 15px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-        }
-
-        .label {
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-
-        .status-pill {
-            display: inline-block;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 14px;
-            font-weight: bold;
-            color: white;
-        }
-
-        .ok { background: #27ae60; }
-        .fail { background: #c0392b; }
-
-        .progress-container {
-            width: 100%;
-            height: 25px;
-            background: #ddd;
-            border-radius: 10px;
-            overflow: hidden;
-            margin-top: 5px;
-        }
-
-        .progress-bar {
-            height: 100%;
-            background: #3498db;
-            width: 0%;
-            transition: width 0.4s ease;
-        }
-
-        .switch-container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 10px;
-        }
-
-        /* SWITCH STYLE */
-        .switch {
-            position: relative;
-            width: 55px;
-            height: 28px;
-        }
-
-        .switch input {
-            display: none;
-        }
-
-        .slider {
-            position: absolute;
-            cursor: pointer;
-            background-color: #ccc;
-            border-radius: 34px;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            transition: .4s;
-        }
-
-        .slider:before {
-            content: "";
-            position: absolute;
-            height: 22px;
-            width: 22px;
-            left: 3px;
-            bottom: 3px;
-            background-color: white;
-            border-radius: 50%;
-            transition: .4s;
-        }
-
-        input:checked + .slider {
-            background-color: #3498db;
-        }
-
-        input:checked + .slider:before {
-            transform: translateX(26px);
-        }
-
-        .btn {
-            width: 100%;
-            padding: 12px;
-            background: #2980b9;
-            color: white;
-            border: none;
-            font-size: 16px;
-            border-radius: 8px;
-            margin-top: 10px;
-            cursor: pointer;
-        }
-
-        .btn:hover {
-            background: #1f6691;
-        }
-
-    </style>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
-<h1>Control de Bomba</h1>
+<h1>Sistema de Control de Bomba</h1>
 
 <!-- ESTADOS -->
 <div class="card">
-    <div class="label">Conexión con Microcontrolador:</div>
-    <span id="estadoConexion" class="status-pill fail">Desconocido</span>
 
-    <div class="label" style="margin-top:10px;">Pozo:</div>
-    <span id="estadoPozo" class="status-pill fail">Desconectado</span>
+    <div class="row">
+        <span class="label">Conexión:</span>
+        <span id="estadoConexion" class="status-pill fail">Desconocido</span>
+    </div>
 
-    <div class="label" style="margin-top:10px;">Nivel del Tanque:</div>
+    <div class="row">
+        <span class="label">Pozo:</span>
+        <span id="estadoPozo" class="status-pill fail">Desconectado</span>
+    </div>
+
+    <div class="label">Nivel del Tanque:</div>
     <div class="progress-container">
         <div id="nivelTanque" class="progress-bar"></div>
     </div>
@@ -152,17 +35,23 @@
         <div id="nivelPozo" class="progress-bar"></div>
     </div>
 
-    <div class="label" style="margin-top:10px;">Bomba:</div>
-    <span id="estadoBomba" class="status-pill fail">Apagada</span>
+    <div class="row" style="margin-top:10px;">
+        <span class="label">Bomba:</span>
+        <span id="estadoBomba" class="status-pill fail">Apagada</span>
+    </div>
 
-    <div class="label" style="margin-top:10px;">Modo de trabajo:</div>
-    <span id="modoTrabajo" class="status-pill ok">Automático</span>
+    <div class="row" style="margin-top:10px;">
+        <span class="label">Modo:</span>
+        <span id="modoTrabajo" class="status-pill ok">Automático</span>
+    </div>
 
-    <button class="btn" onclick="obtenerEstado()">Actualizar</button>
+    <button class="btn-small" onclick="obtenerEstado()">Actualizar</button>
 </div>
+
 
 <!-- CONTROLES -->
 <div class="card">
+
     <div class="switch-container">
         <span>Modo Manual</span>
         <label class="switch">
@@ -170,6 +59,7 @@
             <span class="slider"></span>
         </label>
     </div>
+    <div class="switch-desc">Permite controlar la bomba manualmente</div>
 
     <div class="switch-container">
         <span>Encender Bomba</span>
@@ -178,8 +68,11 @@
             <span class="slider"></span>
         </label>
     </div>
+    <div class="switch-desc">Activa o apaga la bomba cuando el modo manual está activado</div>
+
 </div>
 
 <script src="script.js"></script>
+
 </body>
 </html>
