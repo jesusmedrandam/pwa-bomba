@@ -1,5 +1,5 @@
 // Cambia esto cuando tengamos tu backend real:
-const API = "https://TU_BACKEND.onrender.com";
+const API = "https://pwa-bomba.onrender.com/";
 
 // Enviar comando a la bomba
 async function enviarComando(accion) {
