@@ -1,63 +1,90 @@
-require("dotenv").config();
+// -----------------------------
+// 📌 IMPORTS
+// -----------------------------
 const express = require("express");
+const path = require("path");
 const TelegramBot = require("node-telegram-bot-api");
-const cors = require("cors");
 
+// -----------------------------
+// 📌 CONFIG SERVIDOR
+// -----------------------------
 const app = express();
+const PORT = process.env.PORT || 3000;
+
 app.use(express.json());
-app.use(cors());
 
-// ---------- BOT DE TELEGRAM ----------
-const bot = new TelegramBot(process.env.BOT_TOKEN, { polling: true });
-const CHAT_ID = process.env.CHAT_ID;
+// -----------------------------
+// 📌 TELEGRAM BOT (se activa solo si hay token)
+// -----------------------------
+let bot = null;
 
-// Enviar mensajes de prueba
-bot.on("message", (msg) => {
-    bot.sendMessage(msg.chat.id, "Bot funcionando correctamente 😄");
+if (process.env.BOT_TOKEN) {
+  bot = new TelegramBot(process.env.BOT_TOKEN, { polling: false });
+  console.log("🤖 Bot de Telegram cargado correctamente.");
+
+  // 🔔 Función para enviar mensajes
+  const sendTelegram = (message) => {
+    if (!bot) return;
+    if (!process.env.CHAT_ID) return;
+
+    bot.sendMessage(process.env.CHAT_ID, message).catch(console.error);
+  };
+
+  // Ejemplo: mensaje al iniciar
+  sendTelegram("🚀 Backend iniciado en Render.");
+}
+
+// -----------------------------
+// 📌 ENDPOINT PRINCIPAL (para evitar Cannot GET /)
+// -----------------------------
+app.get("/", (req, res) => {
+  res.send(`
+    <h2>✔️ Backend funcionando</h2>
+    <p>Este servidor es solo API para la PWA del sistema de bombeo.</p>
+  `);
 });
 
-// ---------- API PARA EL ESP32 ----------
-let estado = {
-    conexion: "desconocido",
-    pozo: "desconocido",
+// -----------------------------
+// 📌 ENDPOINT DE ESTADO (lo consumirá tu PWA)
+// -----------------------------
+app.get("/status", (req, res) => {
+  res.json({
+    conexion_micro: "desconocido", // luego lo reemplazaremos
+    conexion_pozo: "desconocido",
     tanque: 0,
-    pozo_nivel: 0,
+    pozo: 0,
     bomba: "apagada",
     modo: "manual"
-};
+  });
+});
 
-// ESP32 → Servidor
-app.post("/api/actualizar", (req, res) => {
-    estado = { ...estado, ...req.body };
+// -----------------------------
+// 📌 ENDPOINT PARA COMANDOS
+// -----------------------------
+app.post("/command", (req, res) => {
+  const cmd = req.body.action;
+  console.log("Comando recibido:", cmd);
 
+  if (bot) {
     bot.sendMessage(
-        CHAT_ID,
-        `📡 Actualización recibida:
-▪ Conexión: ${estado.conexion}
-▪ Pozo: ${estado.pozo}
-▪ Nivel tanque: ${estado.tanque}%
-▪ Nivel pozo: ${estado.pozo_nivel}%
-▪ Bomba: ${estado.bomba}
-▪ Modo: ${estado.modo}`
+      process.env.CHAT_ID,
+      `⚙️ Comando ejecutado: ${cmd}`
     );
+  }
 
-    res.json({ ok: true });
+  res.json({ ok: true });
 });
 
-// PWA → Servidor (obtener datos)
-app.get("/api/estado", (req, res) => {
-    res.json(estado);
+// -----------------------------
+// 📌 ENDPOINT DE SALUD (Render lo usa)
+// -----------------------------
+app.get("/healthz", (req, res) => {
+  res.status(200).send("OK");
 });
 
-// PWA → Servidor (cambiar bomba o modo)
-app.post("/api/comando", (req, res) => {
-    const { accion } = req.body;
-    estado.bomba = accion;
-    res.json({ ok: true });
-});
-
-// ---------- SERVIDOR ----------
-const PORT = process.env.PORT || 3000;
+// -----------------------------
+// 📌 INICIAR SERVIDOR
+// -----------------------------
 app.listen(PORT, () => {
-    console.log("Servidor backend corriendo en puerto " + PORT);
+  console.log(`🚀 Servidor backend escuchando en puerto ${PORT}`);
 });
