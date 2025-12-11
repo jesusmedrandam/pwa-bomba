@@ -1,7 +1,10 @@
-self.addEventListener("install", (e) => {
-    console.log("Service Worker instalado");
+self.addEventListener("install", event => {
+  self.skipWaiting();
 });
 
-self.addEventListener("activate", (e) => {
-    console.log("Service Worker activo");
+self.addEventListener("activate", event => {
+  clients.claim();
 });
+
+// Required minimal fetch to make PWA installable
+self.addEventListener("fetch", () => {});
